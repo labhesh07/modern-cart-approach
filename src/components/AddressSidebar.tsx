@@ -103,21 +103,16 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
           // Select from saved addresses with animations
           <div className="space-y-4 mt-4">
             {SAVED_ADDRESSES.map((addr, index) => (
-              <div
+              <motion.div
                 key={addr.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
                 className={cn(
                   "p-4 border rounded-lg cursor-pointer transition-all hover:border-primary",
                   addr.default && "border-primary bg-primary/5"
                 )}
                 onClick={() => handleSelectAddress(addr.address)}
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                }}
-                // Using CSS animations with delays for a staggered effect
-                className={cn(
-                  "p-4 border rounded-lg cursor-pointer transition-all hover:border-primary animate-fade-in",
-                  addr.default && "border-primary bg-primary/5"
-                )}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
@@ -131,21 +126,33 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                   )}
                 </div>
                 <p className="text-sm text-gray-600 mt-1">{addr.address}</p>
-              </div>
+              </motion.div>
             ))}
             
-            <Button
-              variant="outline"
-              className="w-full mt-4 flex items-center justify-center transition-all hover:bg-primary/5"
-              onClick={() => handleModeChange("new")}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Address
-            </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-4 flex items-center justify-center transition-all hover:bg-primary/5"
+                onClick={() => handleModeChange("new")}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add New Address
+              </Button>
+            </motion.div>
           </div>
         ) : (
           // Add new address form with animations
-          <form onSubmit={handleAddNewAddress} className="space-y-4 mt-4 animate-fade-in">
+          <motion.form 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            onSubmit={handleAddNewAddress} 
+            className="space-y-4 mt-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="name">Address Name</Label>
               <Input
@@ -226,7 +233,12 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
               </div>
             </div>
             
-            <div className="flex gap-2 pt-4">
+            <motion.div 
+              className="flex gap-2 pt-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <Button
                 type="button"
                 variant="outline"
@@ -238,8 +250,8 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
               <Button type="submit" className="flex-1 transition-all hover:shadow-md">
                 Save Address
               </Button>
-            </div>
-          </form>
+            </motion.div>
+          </motion.form>
         )}
       </SheetContent>
     </Sheet>
