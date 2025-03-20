@@ -6,16 +6,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
-
-type DeliveryOption = "Home delivery" | "Virtual Meet" | "Pick And Drop";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import { AddressSidebar } from "@/components/AddressSidebar";
 
 const Checkout = () => {
-  const [deliveryOption, setDeliveryOption] = useState<DeliveryOption>("Home delivery");
   const [quantity, setQuantity] = useState(1);
-  const [scheduleOrder, setScheduleOrder] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [deliveryAddress, setDeliveryAddress] = useState("Plot No. 5, Sh. Chaudhari Devi Lal Memorial (CDCL), Sector 28-B, Chandigarh, 160028, India");
+  const [addressSidebarOpen, setAddressSidebarOpen] = useState(false);
   
   // Mock data
   const product = {
@@ -25,15 +25,21 @@ const Checkout = () => {
     imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1899&q=80"
   };
   
-  const handleCheckout = () => {
-    toast({
-      title: "Order placed successfully!",
-      description: "Your order has been placed and will be processed soon.",
-    });
-  };
-
   const incrementQuantity = () => setQuantity(prev => prev + 1);
   const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
+  
+  const handleCheckout = () => {
+    if (!selectedDate) {
+      toast("Please select a delivery time", {
+        description: "Delivery schedule is required for home delivery."
+      });
+      return;
+    }
+    
+    toast("Order placed successfully!", {
+      description: "Your order has been placed and will be delivered as scheduled."
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -45,104 +51,82 @@ const Checkout = () => {
         </Link>
       </header>
 
-      <div className="flex-1 container max-w-6xl mx-auto py-8 px-4 lg:px-6">
+      <div className="flex-1 container max-w-6xl mx-auto py-8 px-4 lg:px-6 animate-fade-in">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left column - Delivery options and Address */}
+          {/* Left column - Delivery details */}
           <div className="lg:col-span-2 space-y-6">
             <h1 className="text-2xl font-semibold mb-6">Checkout</h1>
             
-            {/* Delivery Options */}
-            <div>
-              <h2 className="text-lg font-medium mb-4">Delivery Options</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {["Home delivery", "Virtual Meet", "Pick And Drop"].map((option) => (
-                  <div
-                    key={option}
-                    className={cn(
-                      "border rounded-lg p-4 cursor-pointer transition-all",
-                      deliveryOption === option
-                        ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "border-gray-200 hover:border-gray-300"
-                    )}
-                    onClick={() => setDeliveryOption(option as DeliveryOption)}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium">{option}</span>
-                      {deliveryOption === option && (
-                        <span className="flex items-center justify-center rounded-full bg-primary h-5 w-5">
-                          <Check className="h-3 w-3 text-white" />
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      {option === "Home delivery" 
-                        ? "Get your order delivered to your doorstep" 
-                        : option === "Virtual Meet" 
-                          ? "Discuss your order online with our consultant" 
-                          : "We'll pick up and drop off your items"}
-                    </p>
-                  </div>
-                ))}
+            {/* Delivery Options - Only Home Delivery */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h2 className="text-lg font-medium mb-4">Home Delivery</h2>
+              <div className="rounded-lg p-4 border-primary bg-primary/5 ring-1 ring-primary">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-medium">Home delivery</span>
+                  <span className="flex items-center justify-center rounded-full bg-primary h-5 w-5">
+                    <Check className="h-3 w-3 text-white" />
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Get your order delivered to your doorstep
+                </p>
               </div>
+            </div>
+            
+            {/* Delivery Schedule - Required */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h2 className="text-lg font-medium mb-4">Delivery Schedule</h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Please select when you'd like your order to be delivered
+              </p>
+              <DateTimePicker 
+                date={selectedDate} 
+                setDate={setSelectedDate} 
+                className="w-full"
+              />
+              {!selectedDate && (
+                <p className="text-sm text-red-500 mt-2">
+                  Delivery schedule is required for home delivery
+                </p>
+              )}
             </div>
             
             {/* Delivery Address */}
-            <div>
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-medium">Delivery Address</h2>
-                <Button variant="outline" size="sm">Change</Button>
+                <Button variant="outline" size="sm" onClick={() => setAddressSidebarOpen(true)}>
+                  Change
+                </Button>
               </div>
-              <Card>
-                <CardContent className="p-4 flex">
-                  <div className="flex-shrink-0 mr-4">
-                    <div className="flex items-center justify-center bg-gray-100 rounded-full h-10 w-10">
-                      <MapPin className="h-5 w-5 text-gray-500" />
-                    </div>
+              <div className="p-4 flex border rounded-lg">
+                <div className="flex-shrink-0 mr-4">
+                  <div className="flex items-center justify-center bg-gray-100 rounded-full h-10 w-10">
+                    <MapPin className="h-5 w-5 text-gray-500" />
                   </div>
-                  <div>
-                    <h3 className="font-medium mb-1">Current Location</h3>
-                    <p className="text-sm text-gray-600">
-                      Plot No. 5, Sh. Chaudhari Devi Lal Memorial (CDCL), Sector 28-B, Chandigarh, 160028, India
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-1">Current Location</h3>
+                  <p className="text-sm text-gray-600">
+                    {deliveryAddress}
+                  </p>
+                </div>
+              </div>
             </div>
             
             {/* Store Location */}
-            <div>
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
               <h2 className="text-lg font-medium mb-4">Store Location</h2>
-              <Card>
-                <CardContent className="p-4 flex">
-                  <div className="flex-shrink-0 mr-4">
-                    <div className="flex items-center justify-center bg-gray-100 rounded-full h-10 w-10">
-                      <Store className="h-5 w-5 text-gray-500" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-1">Store Address</h3>
-                    <p className="text-sm text-gray-600">{product.location}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Schedule Order Switch */}
-            <div>
-              <div className="flex items-center justify-between bg-white p-4 rounded-lg border">
-                <div className="flex items-center gap-3">
+              <div className="p-4 flex border rounded-lg">
+                <div className="flex-shrink-0 mr-4">
                   <div className="flex items-center justify-center bg-gray-100 rounded-full h-10 w-10">
-                    <Calendar className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Schedule Order</h3>
-                    <p className="text-sm text-gray-500">Get it delivered when you want</p>
+                    <Store className="h-5 w-5 text-gray-500" />
                   </div>
                 </div>
-                <Switch 
-                  checked={scheduleOrder} 
-                  onCheckedChange={setScheduleOrder}
-                />
+                <div>
+                  <h3 className="font-medium mb-1">Store Address</h3>
+                  <p className="text-sm text-gray-600">{product.location}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -235,6 +219,13 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+      
+      {/* Address Sidebar */}
+      <AddressSidebar 
+        open={addressSidebarOpen} 
+        onOpenChange={setAddressSidebarOpen}
+        onAddressSelect={setDeliveryAddress}
+      />
     </div>
   );
 };
