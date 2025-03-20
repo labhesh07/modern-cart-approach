@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 // Mock data for saved addresses
 const SAVED_ADDRESSES = [
@@ -99,9 +100,9 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
         </SheetHeader>
 
         {mode === "select" ? (
-          // Select from saved addresses
+          // Select from saved addresses with animations
           <div className="space-y-4 mt-4">
-            {SAVED_ADDRESSES.map((addr) => (
+            {SAVED_ADDRESSES.map((addr, index) => (
               <div
                 key={addr.id}
                 className={cn(
@@ -109,6 +110,14 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                   addr.default && "border-primary bg-primary/5"
                 )}
                 onClick={() => handleSelectAddress(addr.address)}
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                }}
+                // Using CSS animations with delays for a staggered effect
+                className={cn(
+                  "p-4 border rounded-lg cursor-pointer transition-all hover:border-primary animate-fade-in",
+                  addr.default && "border-primary bg-primary/5"
+                )}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
@@ -127,7 +136,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
             
             <Button
               variant="outline"
-              className="w-full mt-4 flex items-center justify-center"
+              className="w-full mt-4 flex items-center justify-center transition-all hover:bg-primary/5"
               onClick={() => handleModeChange("new")}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -135,8 +144,8 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
             </Button>
           </div>
         ) : (
-          // Add new address form
-          <form onSubmit={handleAddNewAddress} className="space-y-4 mt-4">
+          // Add new address form with animations
+          <form onSubmit={handleAddNewAddress} className="space-y-4 mt-4 animate-fade-in">
             <div className="space-y-2">
               <Label htmlFor="name">Address Name</Label>
               <Input
@@ -146,6 +155,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                 value={newAddress.name}
                 onChange={handleInputChange}
                 required
+                className="transition-all focus:ring-2 focus:ring-primary"
               />
             </div>
             
@@ -158,6 +168,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                 value={newAddress.street}
                 onChange={handleInputChange}
                 required
+                className="transition-all focus:ring-2 focus:ring-primary"
               />
             </div>
             
@@ -171,6 +182,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                   value={newAddress.city}
                   onChange={handleInputChange}
                   required
+                  className="transition-all focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -182,6 +194,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                   value={newAddress.state}
                   onChange={handleInputChange}
                   required
+                  className="transition-all focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -196,6 +209,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                   value={newAddress.zipCode}
                   onChange={handleInputChange}
                   required
+                  className="transition-all focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -207,6 +221,7 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
                   value={newAddress.country}
                   onChange={handleInputChange}
                   required
+                  className="transition-all focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -215,12 +230,12 @@ export function AddressSidebar({ open, onOpenChange, onAddressSelect }: AddressS
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 transition-all"
                 onClick={() => handleModeChange("select")}
               >
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1">
+              <Button type="submit" className="flex-1 transition-all hover:shadow-md">
                 Save Address
               </Button>
             </div>
