@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { ArrowLeft, Calendar, MapPin, Minus, Plus, Store, Check } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Minus, Plus, Store, Check, CreditCard, Wallet, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -10,12 +10,19 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DateTimePicker } from "@/components/DateTimePicker";
 import { AddressSidebar } from "@/components/AddressSidebar";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+
+type PaymentMethod = "credit-card" | "wallet" | "cash";
 
 const Checkout = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [deliveryAddress, setDeliveryAddress] = useState("Plot No. 5, Sh. Chaudhari Devi Lal Memorial (CDCL), Sector 28-B, Chandigarh, 160028, India");
   const [addressSidebarOpen, setAddressSidebarOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("credit-card");
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Mock data
   const product = {
@@ -36,9 +43,33 @@ const Checkout = () => {
       return;
     }
     
-    toast("Order placed successfully!", {
-      description: "Your order has been placed and will be delivered as scheduled."
-    });
+    setIsProcessing(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      setIsProcessing(false);
+      toast("Order placed successfully!", {
+        description: `Your order has been placed and will be delivered as scheduled. Payment method: ${getPaymentMethodName(paymentMethod)}`
+      });
+    }, 1500);
+  };
+  
+  const getPaymentMethodName = (method: PaymentMethod): string => {
+    switch(method) {
+      case "credit-card": return "Credit Card";
+      case "wallet": return "Digital Wallet";
+      case "cash": return "Cash on Delivery";
+      default: return "Unknown";
+    }
+  };
+  
+  const getPaymentMethodIcon = (method: PaymentMethod) => {
+    switch(method) {
+      case "credit-card": return <CreditCard className="h-5 w-5" />;
+      case "wallet": return <Wallet className="h-5 w-5" />;
+      case "cash": return <DollarSign className="h-5 w-5" />;
+      default: return null;
+    }
   };
 
   return (
@@ -110,6 +141,99 @@ const Checkout = () => {
                   <p className="text-sm text-gray-600">
                     {deliveryAddress}
                   </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Payment Methods */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <h2 className="text-lg font-medium mb-4">Payment Method</h2>
+              <div className="space-y-4">
+                <div 
+                  className={cn(
+                    "p-4 border rounded-lg cursor-pointer transition-all",
+                    paymentMethod === "credit-card" ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:border-gray-300"
+                  )}
+                  onClick={() => setPaymentMethod("credit-card")}
+                >
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 mr-4">
+                      <div className={cn(
+                        "flex items-center justify-center rounded-full h-10 w-10",
+                        paymentMethod === "credit-card" ? "bg-primary/10" : "bg-gray-100"
+                      )}>
+                        <CreditCard className={cn(
+                          "h-5 w-5",
+                          paymentMethod === "credit-card" ? "text-primary" : "text-gray-500"
+                        )} />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium">Credit Card</h3>
+                      <p className="text-sm text-gray-600">Pay with Visa, Mastercard, or American Express</p>
+                    </div>
+                    {paymentMethod === "credit-card" && (
+                      <Check className="h-5 w-5 text-primary" />
+                    )}
+                  </div>
+                </div>
+
+                <div 
+                  className={cn(
+                    "p-4 border rounded-lg cursor-pointer transition-all",
+                    paymentMethod === "wallet" ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:border-gray-300"
+                  )}
+                  onClick={() => setPaymentMethod("wallet")}
+                >
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 mr-4">
+                      <div className={cn(
+                        "flex items-center justify-center rounded-full h-10 w-10",
+                        paymentMethod === "wallet" ? "bg-primary/10" : "bg-gray-100"
+                      )}>
+                        <Wallet className={cn(
+                          "h-5 w-5",
+                          paymentMethod === "wallet" ? "text-primary" : "text-gray-500"
+                        )} />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium">Digital Wallet</h3>
+                      <p className="text-sm text-gray-600">Pay with Apple Pay, Google Pay, or PayPal</p>
+                    </div>
+                    {paymentMethod === "wallet" && (
+                      <Check className="h-5 w-5 text-primary" />
+                    )}
+                  </div>
+                </div>
+
+                <div 
+                  className={cn(
+                    "p-4 border rounded-lg cursor-pointer transition-all",
+                    paymentMethod === "cash" ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:border-gray-300"
+                  )}
+                  onClick={() => setPaymentMethod("cash")}
+                >
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 mr-4">
+                      <div className={cn(
+                        "flex items-center justify-center rounded-full h-10 w-10",
+                        paymentMethod === "cash" ? "bg-primary/10" : "bg-gray-100"
+                      )}>
+                        <DollarSign className={cn(
+                          "h-5 w-5",
+                          paymentMethod === "cash" ? "text-primary" : "text-gray-500"
+                        )} />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium">Cash on Delivery</h3>
+                      <p className="text-sm text-gray-600">Pay with cash when your order arrives</p>
+                    </div>
+                    {paymentMethod === "cash" && (
+                      <Check className="h-5 w-5 text-primary" />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -196,6 +320,15 @@ const Checkout = () => {
                 
                 <Separator />
                 
+                {/* Payment method summary */}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">Payment Method</span>
+                  <div className="flex items-center gap-2">
+                    {getPaymentMethodIcon(paymentMethod)}
+                    <span>{getPaymentMethodName(paymentMethod)}</span>
+                  </div>
+                </div>
+                
                 {/* Total */}
                 <div className="flex justify-between font-medium text-lg">
                   <span>Total</span>
@@ -207,8 +340,9 @@ const Checkout = () => {
                   className="w-full" 
                   size="lg"
                   onClick={handleCheckout}
+                  disabled={isProcessing || !selectedDate}
                 >
-                  Place Order
+                  {isProcessing ? "Processing..." : "Place Order"}
                 </Button>
                 
                 <p className="text-xs text-center text-gray-500">
